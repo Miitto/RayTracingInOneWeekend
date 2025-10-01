@@ -37,4 +37,29 @@ namespace gl {
 
     const Size& size() const { return m_size; }
   };
+
+  class Texture2DMultiSample {
+  private:
+    gl::Id m_id = 0;
+    gl::Texture::Size m_size{};
+
+  public:
+    Texture2DMultiSample() {
+      glCreateTextures(GL_TEXTURE_2D_MULTISAMPLE, 1, m_id);
+    }
+    const gl::Id& id() const { return m_id; }
+
+    void bind(GLenum unit) const { glBindTextureUnit(unit, m_id); }
+    static void unbind(GLenum unit) { glBindTextureUnit(unit, 0); }
+    void setParameter(GLenum pname, GLint param) const {
+      glTextureParameteri(m_id, pname, param);
+    }
+    void storage(GLint samples, GLenum internalformat, gl::Texture::Size size) {
+      m_size = size;
+      glTextureStorage2DMultisample(m_id, samples, internalformat, size.width,
+                                    size.height, GL_FALSE);
+    }
+
+    const gl::Texture::Size& size() const { return m_size; }
+  };
 } // namespace gl

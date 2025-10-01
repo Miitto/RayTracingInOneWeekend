@@ -24,4 +24,4 @@ target_sources(${PROJECT_NAME} PRIVATE
  )
 
 add_subdirectory(shaders)
-COPY_SHADERS(${PROJECT_NAME})
+COPY_SHADERS(${PROJECT_NAME} shaders)

@@ -30,6 +30,10 @@ int main() {
 
   Logger::info("Loaded OpenGL {}.{}\n", GLVersion.major, GLVersion.minor);
 
+  GLint maxSamples;
+  glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+  Logger::info("Max MSAA samples supported: {}\n", maxSamples);
+
   gl::gui::Context gui(window);
 
   glm::vec4 clearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -58,19 +62,17 @@ int main() {
   glm::vec2 fsize = {static_cast<float>(oldWindowSize.width),
                      static_cast<float>(oldWindowSize.height)};
 
-  gl::Texture outputTexture{};
-  outputTexture.setParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  outputTexture.setParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // Enable MSAA
+  glEnable(GL_MULTISAMPLE);
+  gl::Texture2DMultiSample outputTexture{};
   outputTexture.storage(
-      1, GL_RGBA32F,
+      maxSamples, GL_RGBA32F,
       gl::Texture::Size{oldWindowSize.width, oldWindowSize.height});
 
   gl::Framebuffer framebuffer;
   framebuffer.attachTexture(GL_COLOR_ATTACHMENT0, outputTexture);
 
-  glm::dvec2 resolution(fsize);
-
-  gl::StorageBuffer resUbo(sizeof(glm::dvec2), &resolution);
+  gl::StorageBuffer resUbo(sizeof(glm::dvec2), &fsize);
   resUbo.bindBase(gl::StorageBuffer::Target::UNIFORM, 0);
 
   framebuffer.bind();
@@ -88,7 +90,7 @@ int main() {
 
     framebuffer.blit(0, 0, 0, oldWindowSize.width, oldWindowSize.height, 0, 0,
                      oldWindowSize.width, oldWindowSize.height,
-                     GL_COLOR_BUFFER_BIT, GL_LINEAR);
+                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     window.swapBuffers();
   }

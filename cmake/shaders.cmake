@@ -11,7 +11,6 @@ function(_compile_slang_file)
   set(SINGLEVALUE SOURCE OUT TARGET)
   set(MULTIVALUES ENTRIES)
   cmake_parse_arguments(PARSE_ARGV 0 arg "" "${SINGLEVALUE}" "${MULTIVALUES}")
-  message(STATUS "Compiling shader source file: ${arg_SOURCE} to ${arg_OUT} for entries \"${arg_ENTRIES}\"")
 
   if(${arg_TARGET} STREQUAL GLSL)
     set(COMMAND_TARGET -target glsl -profile glsl_460)
@@ -44,21 +43,16 @@ function(compile_shader target shader_target link_target)
     message(FATAL_ERROR "Invalid output target: ${shader_target}. Valid targets are: ${VALID_OUTPUT_TARGETS}")
   endif()
 
-  
   set(OUTPUTS "")
   set(INCLUDED_FILES "")
-
-  message(STATUS "Including ${arg_INCLUDES} in shader compilation")
 
   foreach(file ${arg_INCLUDES})
     set(INCLUDED_FILES ${INCLUDED_FILES} include/${file}.slang)
   endforeach()
 
-  message(STATUS "Included files: ${INCLUDED_FILES}")
 
   foreach(source ${arg_SOURCES})
     set(SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${source}.slang)
-    message(STATUS "Processing shader source: ${SOURCE_FILE}")
 
     if(${shader_target} STREQUAL SPIRV)
       set(OUT_FILE ${CMAKE_BINARY_DIR}/shaders/${source}.spv)
@@ -73,7 +67,6 @@ function(compile_shader target shader_target link_target)
     endif()
   endforeach()
 
-  message(STATUS "Shader compilation outputs: ${OUTPUTS}")
 
   add_custom_target(${target} ALL
     DEPENDS ${OUTPUTS}
@@ -83,11 +76,12 @@ function(compile_shader target shader_target link_target)
   add_dependencies(${link_target} ${target})
 endfunction()
 
-function(copy_shaders target)
-  add_custom_command(
-    TARGET ${target}
-    POST_BUILD
+function(copy_shaders target shader_target)
+  add_custom_target(
+    ${target}_copy_shaders
+    ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/shaders $<TARGET_FILE_DIR:${target}>/shaders
+    DEPENDS ${shader_target}
     COMMENT "Copying shaders to output directory"
   )
 endfunction()

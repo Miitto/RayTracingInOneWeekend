@@ -12,13 +12,13 @@ namespace gl {
     Framebuffer() { glCreateFramebuffers(1, m_id); }
     const gl::Id& id() const { return m_id; }
 
-    void attachTexture(GLenum attachment, GLuint texture,
-                       GLint level = 0) const {
-      glNamedFramebufferTexture(m_id, attachment, texture, level);
-    }
     void attachTexture(GLenum attachment, const gl::Texture& texture,
                        GLint level = 0) const {
       glNamedFramebufferTexture(m_id, attachment, texture.id(), level);
+    }
+    void attachTexture(GLenum attachment,
+                       const gl::Texture2DMultiSample& texture) const {
+      glNamedFramebufferTexture(m_id, attachment, texture.id(), 0);
     }
     void bind(GLenum target = GL_FRAMEBUFFER) const {
       glBindFramebuffer(target, m_id);
