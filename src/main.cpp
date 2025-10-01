@@ -12,8 +12,8 @@ std::array<BasicVertex, 3> fullscreenTriangle = {
     BasicVertex{.position = {-1.0f, 3.0f}},
 };
 
-constexpr int WINDOW_WIDTH = 1280;
-constexpr int WINDOW_HEIGHT = 720;
+constexpr int WINDOW_WIDTH = 1904;
+constexpr int WINDOW_HEIGHT = 1190;
 
 int main() {
   Logger::info("Starting application");

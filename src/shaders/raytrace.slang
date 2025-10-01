@@ -121,7 +121,17 @@ float4 frag(VOut i) : SV_Target {
 
     let world = World<Sphere, 5>({ground, middle, left, leftInner, right});
 
-    let finalColor = world.color(ray, tInterval, i.uv);
+    var finalColor = float4(0.0);
+    for (int x = -5; x <= 5; x++) {
+        for (int y = -5; y <= 5; y++) {
+            float2 offset = (float2(x, y) * i.pixelDelta) / 5.0;
+            Ray jitteredRay = ray;
+            jitteredRay.dir += float3(offset, 0);
+            finalColor += world.color(jitteredRay, tInterval, i.uv + offset);
+        }
+    }
+    // Idk why 121, Copilot
+    finalColor /= 121.0;
 
     // linear to sRGB
     return float4(finalColor.rgb, finalColor.a);
