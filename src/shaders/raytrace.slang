@@ -109,15 +109,17 @@ float4 frag(VOut i) : SV_Target {
 
     Material groundMat = Lambertian(float3(0.8, 0.8, 0.0));
     Material centerMat = Lambertian(float3(0.1, 0.2, 0.5));
-    Material leftMat = Dielectric(1. / 1.33);
+    Material leftMat = Dielectric(1.5);
+    Material leftInnerMat = Dielectric(1. / 1.5);
     Material rightMat = Metal(float3(0.8, 0.6, 0.2), 0.2);
 
     Sphere ground = Sphere(float3(0, -100.5, -1), 100.0, groundMat);
     Sphere middle = Sphere(float3(0, 0, -1.2), 0.5, centerMat);
     Sphere left = Sphere(float3(-1.0, 0, -1), 0.5, leftMat);
+    Sphere leftInner = Sphere(float3(-1.0, 0, -1), 0.4, leftInnerMat);
     Sphere right = Sphere(float3(1.0, 0, -1), 0.5, rightMat);
 
-    let world = World<Sphere, 4>({ground, middle, left, right});
+    let world = World<Sphere, 5>({ground, middle, left, leftInner, right});
 
     let finalColor = world.color(ray, tInterval, i.uv);
 
