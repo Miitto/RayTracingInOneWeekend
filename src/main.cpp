@@ -74,6 +74,8 @@ int main() {
     glm::vec2 fsize;
     float vFov = glm::radians(90.0f);
     float focalLength = 1.0f;
+    float backgroundBrightness = 0.25f;
+    uint32_t raysPerPixelSqRt = 25;
   };
 
   Params params;

@@ -82,3 +82,19 @@ struct Dielectric : Material {
         return Scatter(attenuation, scattered);
     }
 };
+
+struct DiffuseLight : Material {
+    float3 emitColor;
+
+    __init(float3 emitColor) {
+        this.emitColor = emitColor;
+    }
+
+    Optional<Scatter> scatter(in Ray ray, in Hit hit, float2 uv) {
+        return none;
+    }
+
+    override float3 emitted(float2 uv) {
+        return emitColor;
+    }
+};
