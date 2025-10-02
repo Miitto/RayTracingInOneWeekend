@@ -14,7 +14,7 @@ struct Scatter {
 }
 
 interface Material {
-    Optional<Scatter> scatter(in Ray ray, in Hit hit);
+    Optional<Scatter> scatter(in Ray ray, in Hit hit, float2 uv);
 }
 
 struct Hit {

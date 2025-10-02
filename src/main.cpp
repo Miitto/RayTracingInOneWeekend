@@ -62,8 +62,6 @@ int main() {
   glm::vec2 fsize = {static_cast<float>(oldWindowSize.width),
                      static_cast<float>(oldWindowSize.height)};
 
-  // Enable MSAA
-  glEnable(GL_MULTISAMPLE);
   gl::Texture2DMultiSample outputTexture{};
   outputTexture.storage(
       maxSamples, GL_RGBA32F,
@@ -72,7 +70,16 @@ int main() {
   gl::Framebuffer framebuffer;
   framebuffer.attachTexture(GL_COLOR_ATTACHMENT0, outputTexture);
 
-  gl::StorageBuffer resUbo(sizeof(glm::dvec2), &fsize);
+  struct Params {
+    glm::vec2 fsize;
+    float vFov = glm::radians(90.0f);
+    float focalLength = 1.0f;
+  };
+
+  Params params;
+  params.fsize = fsize;
+
+  gl::StorageBuffer resUbo(sizeof(Params), &params);
   resUbo.bindBase(gl::StorageBuffer::Target::UNIFORM, 0);
 
   framebuffer.bind();

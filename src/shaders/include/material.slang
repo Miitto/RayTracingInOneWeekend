@@ -8,8 +8,8 @@ struct Lambertian : Material {
         this.albedo = albedo;
     }
 
-    Optional<Scatter> scatter(in Ray ray, in Hit hit) {
-        float2 seed = hit.point.xy + hit.point.zx;
+    Optional<Scatter> scatter(in Ray ray, in Hit hit, float2 uv) {
+        float2 seed = hit.point.xy + hit.point.zx + uv;
         float3 scatterDir = hit.normal + normalize(rand3(seed));
 
         // Catch degenerate scatter direction
@@ -32,9 +32,9 @@ struct Metal : Material {
         this.fuzz = clamp(fuzz, 0.0, 1.0);
     }
 
-    Optional<Scatter> scatter(in Ray ray, in Hit hit) {
+    Optional<Scatter> scatter(in Ray ray, in Hit hit, float2 uv) {
         float3 reflected = float3(normalize(reflect(normalize(ray.dir), hit.normal)));
-        float2 seed = float2(hit.point.xy + hit.point.zx);
+        float2 seed = float2(hit.point.xy + hit.point.zx) + uv;
         let scattered = Ray(hit.point, reflected + fuzz * rand3(seed));
         let attenuation = albedo;
         if (dot(scattered.dir, hit.normal) > 0.0) {
@@ -59,7 +59,7 @@ struct Dielectric : Material {
         return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
     }
 
-    Optional<Scatter> scatter(in Ray ray, in Hit hit) {
+    Optional<Scatter> scatter(in Ray ray, in Hit hit, float2 uv) {
         let attenuation = float3(1.0, 1.0, 1.0);
 
         float refractionRatio = hit.frontFace ? (1.0 / ir) : ir;
@@ -71,7 +71,7 @@ struct Dielectric : Material {
 
         bool cannotRefract = refractionRatio * sinTheta > 1.0;
 
-        float2 seed = float2(hit.point.xy + hit.point.zx);
+        float2 seed = float2(hit.point.xy + hit.point.zx) + uv;
         float3 direction;
         if (cannotRefract || reflectance(cosTheta, refractionRatio) > rand(seed)) {
             direction = reflect(unitDir, hit.normal);

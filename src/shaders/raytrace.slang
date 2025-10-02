@@ -7,6 +7,8 @@ import "./include/material.slang";
 
 struct Params {
     float2 resolution;
+    float vFov;
+    float focalLength;
 };
 
 layout(location = 0) ConstantBuffer<Params> params;
@@ -71,7 +73,7 @@ struct World<H: Hittable, let size: int> {
             if (let hitConst = this.hit(r, inter)) {
                 hitSomething = true;
                 var hit = hitConst;
-                if (let pair = hit.mat.scatter(r, hit)) {
+                if (let pair = hit.mat.scatter(r, hit, ndc)) {
                     r = pair.scattered;
                     color *= float3(pair.attenuation);
                 } else {
@@ -101,6 +103,9 @@ float4 frag(VOut i) : SV_Target {
     float2 adjNdc = i.ndc;
     adjNdc.x *= i.aspect;
 
+    let h = tan(params.vFov / 2.0);
+    adjNdc *= h * params.focalLength;
+
     Ray ray;
     ray.origin = float3(0, 0, 0);
     ray.dir = float3(adjNdc, -1.0);
@@ -124,13 +129,12 @@ float4 frag(VOut i) : SV_Target {
     var finalColor = float4(0.0);
     for (int x = -5; x <= 5; x++) {
         for (int y = -5; y <= 5; y++) {
-            float2 offset = (float2(x, y) * i.pixelDelta) / 5.0;
+            float2 offset = float2(x, y) * (i.pixelDelta / 5.0);
             Ray jitteredRay = ray;
             jitteredRay.dir += float3(offset, 0);
-            finalColor += world.color(jitteredRay, tInterval, i.uv + offset);
+            finalColor += world.color(jitteredRay, tInterval, adjNdc + offset);
         }
     }
-    // Idk why 121, Copilot
     finalColor /= 121.0;
 
     // linear to sRGB
